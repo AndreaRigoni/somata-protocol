@@ -1,62 +1,61 @@
+![](https://i.imgur.com/Xt8Ujn8.png)
+
 # Somata Protocol
 
-Somata is a framework for building networked microservices, supporting both remote procedure call (RPC) and publish-subscribe models of communication. 
+Somata is a framework for building networked microservices, supporting both remote procedure call (RPC) and publish-subscribe models of communication. This document describes the simple message passing protocol that makes it all work.
 
-* [Overview](#)
-    * [Service vs. Client](#)
-    * [Service discovery](#)
-    * [Message passing](#)
-* [Service lifecycle](#)
-    * [Registration](#)
-    * [Client heartbeating](#)
-* [Client lifecycle](#)
-    * [Lookup](#)
-    * [Service heartbeating](#)
-* [Messages](#)
-    * [Sent by Clients](#)
-        * [Method](#)
-        * [Subscribe](#)
-        * [Unsubscribe](#)
-        * [Ping](#)
+* [Overview](#overview)
+    * [Service and Client](#service-and-client)
+    * [Registry](#registry)
+    * [Message passing](#message-passing)
+* Service lifecycle
+    * Registration
+    * Client heartbeating
+* Client lifecycle
+    * Lookup
+    * Service heartbeating
+* [Messages](#messages)
+    * [Sent by Client](#sent-by-client)
+        * [Method](#method)
+        * [Subscribe](#subscribe)
+        * Unsubscribe
+        * [Ping](#ping)
     * [Sent by Services](#)
-        * [Response](#)
-        * [Error](#)
-        * [Event](#)
-        * [Pong](#)
-* [Classes](#)
-    * [Service](#)
-    * [Client](#)
-    * [Binding](#)
-    * [Connection](#)
+        * [Response](#response)
+        * [Error](#error)
+        * [Event](#event)
+        * [Pong](#pong)
 
 ## Overview
 
-To start using Somata you need to understand three things: the **Service**, the **Client**, and the **Registry**.
+To start using Somata you should understand the distinction between a **Service**, **Client**, and **Registry**.
 
-### Service vs. Client
+### Service and Client
 
-The two main building blocks of Somata are the **Service** and **Client**. These are represented in somata-node as the `somata.Service` and `somata.Client` classes.
+The two main building blocks of Somata are the **Service** and **Client**.
 
 A **Service** has a name and exposes a set of methods, and may publish events.
 
 ```js
-var service = new somata.Service(name, methods)
+var service = new somata.Service("email", {sendEmail, findEmails, getEmail})
 ```
+
+![](https://i.imgur.com/UmQmvJ9.png)
 
 A **Client** manages connections to one or more Services, to call methods and subscribe to events.
 
 ```js
 var  client = new somata.Client()
-client.remote(service_name, method, args..., cb)
+client.remote("email", sendEmail, {subject: "Question about MJC proposal", ...}, cb)
 ```
 
-![](https://i.imgur.com/PiiuL7a.png)
+![](https://i.imgur.com/UFzMbUl.png)
 
 ### Registry
 
 Service discovery is managed by the [Somata Registry](https://github.com/somata/somata-registry), which is itself a specialized Service. Other Services will send registration information (i.e. their name and binding port) to the Registry when started. Before a Client makes a connection to a Service, it must ask the Registry for connection details.
 
-![](https://i.imgur.com/ejzIx4f.png)
+![](https://i.imgur.com/s90wA8p.png)
 
 
 ### Message passing
@@ -134,15 +133,3 @@ If a Client has sent a *ping* message with `ping: "ping"`, the Service should se
 ```json
 {"id": "3", "kind": "pong", "pong": "welcome"}
 ```
-
----
-
-## Classes
-
-### Service
-
-### Client
-
-### Binding
-
-### Connection
